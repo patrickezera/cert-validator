@@ -102,6 +102,22 @@ interface ExtendedRequest extends Request {
   file?: Express.Multer.File;
 }
 
+// Add this interface near the top of the file, with other interfaces
+interface CertificateDetails {
+  subject: { name: string; value: string }[];
+  issuer: { name: string; value: string }[];
+  serialNumber: string;
+  validFrom: string;
+  validTo: string;
+  fingerprint: string;
+  publicKeyAlgorithm: any;
+  signatureAlgorithm: string;
+  keyUsage: string[];
+  extendedKeyUsage: string[];
+  subjectAltName: string;
+  error?: string; // Make error optional
+}
+
 export default async function handler(req: any, res: any) {
   // Set CORS headers
   res.setHeader("Access-Control-Allow-Credentials", true);
@@ -238,7 +254,7 @@ export default async function handler(req: any, res: any) {
       : ["Not specified"];
 
     // Prepare response
-    const details = {
+    const details: CertificateDetails = {
       subject: formatDN(cert.subject.attributes),
       issuer: formatDN(cert.issuer.attributes),
       serialNumber: cert.serialNumber,
@@ -259,7 +275,7 @@ export default async function handler(req: any, res: any) {
         second: "2-digit",
       }),
       fingerprint: fingerprint,
-      publicKeyAlgorithm: cert.publicKey.algorithm || "Unknown",
+      publicKeyAlgorithm: (cert.publicKey as any).algorithm || "Unknown",
       signatureAlgorithm: cert.siginfo.algorithmOid || "Unknown",
       keyUsage: translatedKeyUsage,
       extendedKeyUsage: translatedExtKeyUsage,

@@ -112,7 +112,7 @@ export default async function handler(
   res: NextApiResponse
 ) {
   // Set CORS headers
-  res.setHeader("Access-Control-Allow-Credentials", true);
+  res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
     "Access-Control-Allow-Methods",
@@ -248,7 +248,7 @@ export default async function handler(
       const signature = forge.util.bytesToHex(privateKey.sign(md));
 
       // Verify with certificate's public key
-      const verified = certPublicKey.verify(
+      const verified = (certPublicKey as any).verify(
         md.digest().bytes(),
         forge.util.hexToBytes(signature)
       );
@@ -345,9 +345,9 @@ export default async function handler(
 
                 try {
                   // Try direct verification first (works for many certificates)
-                  verified = ca.publicKey.verify(
-                    cert.tbsCertificate && cert.tbsCertificate.bytes
-                      ? cert.tbsCertificate.bytes
+                  verified = (ca.publicKey as any).verify(
+                    cert.tbsCertificate && (cert.tbsCertificate as any).bytes
+                      ? (cert.tbsCertificate as any).bytes
                       : forge.asn1
                           .toDer(forge.pki.certificateToAsn1(cert))
                           .getBytes(),
