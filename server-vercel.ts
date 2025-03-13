@@ -1,13 +1,13 @@
 // Simple Express server for Vercel
 import cors from "cors";
-import express from "express";
+import express, { Request, Response } from "express";
 import multer from "multer";
 import path from "path";
 import { fileURLToPath } from "url";
 
 // Import API handlers
-import checkCompatibilityHandler from "./api/check-compatibility.js";
-import validateHandler from "./api/validate.js";
+import checkCompatibilityHandler from "./api/check-compatibility";
+import validateHandler from "./api/validate";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,9 +28,13 @@ const upload = multer({
 });
 
 // API routes
-app.post("/api/validate", upload.single("certificate"), (req, res) => {
-  return validateHandler(req, res);
-});
+app.post(
+  "/api/validate",
+  upload.single("certificate"),
+  (req: any, res: any) => {
+    return validateHandler(req, res);
+  }
+);
 
 app.post(
   "/api/check-compatibility",
@@ -39,7 +43,7 @@ app.post(
     { name: "privateKey", maxCount: 1 },
     { name: "caBundle", maxCount: 1 },
   ]),
-  (req, res) => {
+  (req: any, res: any) => {
     return checkCompatibilityHandler(req, res);
   }
 );
@@ -48,14 +52,16 @@ app.post(
 app.use(express.static(path.join(__dirname, "dist")));
 
 // Fallback to index.html for client-side routing
-app.get("*", (req, res) => {
+app.get("*", (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// Start the server only if this file is run directly
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
 
 // Export for Vercel
 export default app;

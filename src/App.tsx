@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import CertificateCompatibilityChecker from "./components/CertificateCompatibilityChecker";
 import CertificateDetails from "./components/CertificateDetails";
 import CertificateUploader from "./components/CertificateUploader";
 import "./styles.css";
@@ -156,7 +157,7 @@ function App() {
     }
   };
 
-  const handleCompatibilityCheck = async () => {
+  const handleCompatibilityCheck = async (allowNameMatchOverride = false) => {
     if (!certificates.certificate || !certificates.privateKey) return;
 
     setCompatibilityLoading(true);
@@ -170,6 +171,11 @@ function App() {
 
       if (certificates.caBundle) {
         formData.append("caBundle", certificates.caBundle.file);
+      }
+
+      // Add the allowNameMatchOverride parameter if true
+      if (allowNameMatchOverride) {
+        formData.append("allowNameMatchOverride", "true");
       }
 
       const response = await fetch("/api/check-compatibility", {
@@ -260,97 +266,84 @@ function App() {
 
       <div className="card">
         <h2>Certificate Compatibility Check</h2>
-        <div className="upload-group">
-          <div className="form-group">
-            <label>Certificate</label>
-            <CertificateUploader
-              onFileUpload={(file) => {
-                setCertificates({
-                  ...certificates,
-                  certificate: { file, type: "certificate" },
-                });
-                setCompatibilityResult(null);
-                setError(null);
+        <div className="compatibility-section">
+          <div className="compatibility-container">
+            <div className="upload-section">
+              <CertificateUploader
+                onFileUpload={(file) =>
+                  handleMultiCertificateUpload({
+                    file,
+                    type: "certificate",
+                  })
+                }
+                label="Upload Certificate"
+                currentFile={certificates.certificate?.file || null}
+                onRemove={() => handleRemoveCertificate("certificate")}
+              />
+              <CertificateUploader
+                onFileUpload={(file) =>
+                  handleMultiCertificateUpload({
+                    file,
+                    type: "privateKey",
+                  })
+                }
+                label="Upload Private Key"
+                currentFile={certificates.privateKey?.file || null}
+                onRemove={() => handleRemoveCertificate("privateKey")}
+              />
+              <CertificateUploader
+                onFileUpload={(file) =>
+                  handleMultiCertificateUpload({
+                    file,
+                    type: "caBundle",
+                  })
+                }
+                label="Upload CA Bundle (Optional)"
+                currentFile={certificates.caBundle?.file || null}
+                onRemove={() => handleRemoveCertificate("caBundle")}
+              />
+            </div>
+
+            <CertificateCompatibilityChecker
+              certificates={{
+                certificate: certificates.certificate || null,
+                privateKey: certificates.privateKey || null,
+                caBundle: certificates.caBundle || null,
               }}
-              label="Certificate"
-              currentFile={certificates.certificate?.file || null}
-              onRemove={() => handleRemoveCertificate("certificate")}
+              onCheckCompatibility={handleCompatibilityCheck}
+              onRemoveCertificate={handleRemoveCertificate}
+              loading={compatibilityLoading}
             />
           </div>
-          <div className="form-group">
-            <label>Private Key</label>
-            <CertificateUploader
-              onFileUpload={(file) => {
-                setCertificates({
-                  ...certificates,
-                  privateKey: { file, type: "privateKey" },
-                });
-                setCompatibilityResult(null);
-                setError(null);
-              }}
-              label="Private Key"
-              accept=".key,.pem"
-              currentFile={certificates.privateKey?.file || null}
-              onRemove={() => handleRemoveCertificate("privateKey")}
-            />
-          </div>
-          <div className="form-group">
-            <label>CA Bundle (Optional)</label>
-            <CertificateUploader
-              onFileUpload={(file) => {
-                setCertificates({
-                  ...certificates,
-                  caBundle: { file, type: "caBundle" },
-                });
-                setCompatibilityResult(null);
-                setError(null);
-              }}
-              label="CA Bundle"
-              currentFile={certificates.caBundle?.file || null}
-              onRemove={() => handleRemoveCertificate("caBundle")}
-            />
-          </div>
+
+          {compatibilityError && (
+            <div className="result result-invalid">{compatibilityError}</div>
+          )}
+
+          {compatibilityResult && (
+            <div
+              className={`compatibility-result ${
+                compatibilityResult.compatible
+                  ? "compatibility-success"
+                  : "compatibility-error"
+              }`}
+            >
+              <h3>
+                {compatibilityResult.compatible
+                  ? "Certificate and Private Key are compatible"
+                  : "Certificate and Private Key are not compatible"}
+              </h3>
+              <p>{compatibilityResult.message}</p>
+              {compatibilityResult.details && (
+                <ul className="compatibility-details">
+                  {compatibilityResult.details.map((detail, index) => (
+                    <li key={index}>{detail}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
         </div>
-        <div className="action-buttons">
-          <button
-            className="btn"
-            onClick={handleCompatibilityCheck}
-            disabled={
-              !certificates.certificate ||
-              !certificates.privateKey ||
-              compatibilityLoading
-            }
-          >
-            {compatibilityLoading ? "Checking..." : "Check Compatibility"}
-          </button>
-          <p className="help-text">
-            Upload a certificate and its private key to check if they are
-            compatible. CA Bundle is optional.
-          </p>
-        </div>
-        {compatibilityResult && (
-          <div
-            className={`compatibility-result ${
-              compatibilityResult.compatible
-                ? "compatibility-success"
-                : "compatibility-error"
-            }`}
-          >
-            <h3>
-              {compatibilityResult.compatible
-                ? "Certificate and Private Key are compatible"
-                : "Certificate and Private Key are not compatible"}
-            </h3>
-            <p>{compatibilityResult.message}</p>
-            {compatibilityResult.details && (
-              <ul className="compatibility-details">
-                {compatibilityResult.details.map((detail, index) => (
-                  <li key={index}>{detail}</li>
-                ))}
-              </ul>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );

@@ -1,8 +1,45 @@
 import multer from "multer";
+import { NextApiRequest, NextApiResponse } from "next";
 import forge from "node-forge";
 
+// Define types for the formatted DN attributes
+interface DNAttribute {
+  name: string;
+  value: string;
+}
+
+// Define interface for certificate details
+interface CertificateDetails {
+  subject: DNAttribute[];
+  issuer: DNAttribute[];
+  serialNumber: string;
+  validFrom: string;
+  validTo: string;
+  fingerprint: string;
+  publicKeyAlgorithm: string;
+  signatureAlgorithm: string;
+  keyUsage: string[];
+  extendedKeyUsage: string[];
+  subjectAltName: string;
+  error?: string;
+}
+
+// Define interface for validation response
+interface ValidationResponse {
+  valid: boolean;
+  message?: string;
+  details?: CertificateDetails | { error: string };
+}
+
+// Extend NextApiRequest to include file property
+interface ExtendedNextApiRequest extends NextApiRequest {
+  file?: {
+    buffer: Buffer;
+  };
+}
+
 // Format subject and issuer with proper attribute names
-const formatDN = (dn: any[]): { name: string; value: string }[] => {
+const formatDN = (dn: any): DNAttribute[] => {
   // Map of OIDs to readable attribute names in English
   const attributeNames: Record<string, string> = {
     "2.5.4.3": "Common Name", // Common Name
@@ -59,7 +96,7 @@ const formatDN = (dn: any[]): { name: string; value: string }[] => {
       // If it's a UTF-8 encoded string that was incorrectly decoded
       if (value.includes("Ã") || value.includes("Â")) {
         // Try to decode as Latin1 and re-encode as UTF-8
-        const bytes = [];
+        const bytes: number[] = [];
         for (let i = 0; i < value.length; i++) {
           bytes.push(value.charCodeAt(i));
         }
@@ -97,30 +134,12 @@ const runMiddleware = (req: any, res: any, fn: any) => {
   });
 };
 
-// Extend request to include file property
-interface ExtendedRequest extends Request {
-  file?: Express.Multer.File;
-}
-
-// Add this interface near the top of the file, with other interfaces
-interface CertificateDetails {
-  subject: { name: string; value: string }[];
-  issuer: { name: string; value: string }[];
-  serialNumber: string;
-  validFrom: string;
-  validTo: string;
-  fingerprint: string;
-  publicKeyAlgorithm: any;
-  signatureAlgorithm: string;
-  keyUsage: string[];
-  extendedKeyUsage: string[];
-  subjectAltName: string;
-  error?: string; // Make error optional
-}
-
-export default async function handler(req: any, res: any) {
+export default async function handler(
+  req: ExtendedNextApiRequest,
+  res: NextApiResponse<ValidationResponse>
+) {
   // Set CORS headers
-  res.setHeader("Access-Control-Allow-Credentials", true);
+  res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
     "Access-Control-Allow-Methods",
@@ -139,7 +158,10 @@ export default async function handler(req: any, res: any) {
 
   // Only allow POST requests
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).json({
+      valid: false,
+      message: "Method not allowed",
+    });
   }
 
   try {
@@ -157,7 +179,7 @@ export default async function handler(req: any, res: any) {
     const certData = certBuffer.toString("utf-8");
 
     // Parse the certificate
-    let cert;
+    let cert: any;
     try {
       cert = forge.pki.certificateFromPem(certData);
     } catch (error) {
@@ -275,7 +297,7 @@ export default async function handler(req: any, res: any) {
         second: "2-digit",
       }),
       fingerprint: fingerprint,
-      publicKeyAlgorithm: (cert.publicKey as any).algorithm || "Unknown",
+      publicKeyAlgorithm: cert.publicKey.algorithm || "Unknown",
       signatureAlgorithm: cert.siginfo.algorithmOid || "Unknown",
       keyUsage: translatedKeyUsage,
       extendedKeyUsage: translatedExtKeyUsage,

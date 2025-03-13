@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 // Define the type locally
 type CertificateType = "certificate" | "privateKey" | "caBundle";
 
@@ -8,7 +10,7 @@ interface CertificateFile {
 
 interface CertificateCompatibilityCheckerProps {
   certificates: Record<CertificateType, CertificateFile | null>;
-  onCheckCompatibility: () => void;
+  onCheckCompatibility: (allowNameMatchOverride: boolean) => void;
   onRemoveCertificate: (type: CertificateType) => void;
   loading: boolean;
 }
@@ -20,6 +22,7 @@ function CertificateCompatibilityChecker({
   loading,
 }: CertificateCompatibilityCheckerProps) {
   const { certificate, privateKey, caBundle } = certificates;
+  const [allowNameMatchOverride, setAllowNameMatchOverride] = useState(false);
 
   const isDisabled = !certificate || !privateKey || loading;
 
@@ -64,10 +67,33 @@ function CertificateCompatibilityChecker({
         </div>
       </div>
 
+      {caBundle && (
+        <div className="advanced-options">
+          <label className="checkbox-container">
+            <input
+              type="checkbox"
+              checked={allowNameMatchOverride}
+              onChange={(e) => setAllowNameMatchOverride(e.target.checked)}
+            />
+            <span className="checkbox-text">
+              Allow name match override (use when signature verification fails
+              but names match)
+            </span>
+          </label>
+          <div className="help-text">
+            <small>
+              This option will consider certificates compatible if the CA
+              subject matches the certificate issuer, even if signature
+              verification fails. Use with caution.
+            </small>
+          </div>
+        </div>
+      )}
+
       <div className="action-buttons">
         <button
           className="btn"
-          onClick={onCheckCompatibility}
+          onClick={() => onCheckCompatibility(allowNameMatchOverride)}
           disabled={isDisabled}
         >
           {loading ? "Checking Compatibility..." : "Check Compatibility"}

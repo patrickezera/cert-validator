@@ -447,12 +447,11 @@ body {
 
 /* Certificate Compatibility Checker Styles */
 .compatibility-checker {
-  margin-top: 2rem;
-  padding: 1.75rem;
-  background-color: rgba(255, 255, 255, 0.03);
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background-color: var(--card-bg);
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .compatibility-checker h3 {
@@ -678,4 +677,60 @@ body {
 
 .remove-file-btn:active {
   transform: scale(0.95);
+}
+
+/* Advanced options styles */
+.advanced-options {
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-container input[type="checkbox"] {
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
+.checkbox-text {
+  font-size: 0.9rem;
+  color: var(--text);
+}
+
+.advanced-options .help-text {
+  margin-top: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+/* Compatibility container layout */
+.compatibility-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.upload-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .compatibility-container {
+    flex-direction: column;
+  }
+
+  .upload-section {
+    grid-template-columns: 1fr;
+  }
 }
