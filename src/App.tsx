@@ -224,6 +224,7 @@ function App() {
           }}
           label="Upload Certificate"
           currentFile={certificate}
+          onRemove={handleRemoveSingleCertificate}
         />
         {certificate && (
           <div
@@ -273,6 +274,7 @@ function App() {
               }}
               label="Certificate"
               currentFile={certificates.certificate?.file || null}
+              onRemove={() => handleRemoveCertificate("certificate")}
             />
           </div>
           <div className="form-group">
@@ -289,6 +291,7 @@ function App() {
               label="Private Key"
               accept=".key,.pem"
               currentFile={certificates.privateKey?.file || null}
+              onRemove={() => handleRemoveCertificate("privateKey")}
             />
           </div>
           <div className="form-group">
@@ -304,6 +307,7 @@ function App() {
               }}
               label="CA Bundle"
               currentFile={certificates.caBundle?.file || null}
+              onRemove={() => handleRemoveCertificate("caBundle")}
             />
           </div>
         </div>

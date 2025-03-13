@@ -6,6 +6,7 @@ interface CertificateUploaderProps {
   accept?: string;
   label?: string;
   currentFile: File | null;
+  onRemove?: () => void;
 }
 
 const CertificateUploader: React.FC<CertificateUploaderProps> = ({
@@ -13,6 +14,7 @@ const CertificateUploader: React.FC<CertificateUploaderProps> = ({
   accept = ".pem,.crt,.cer,.key",
   label = "Upload Certificate",
   currentFile = null,
+  onRemove,
 }) => {
   const [isDragActive, setIsDragActive] = useState(false);
 
@@ -39,6 +41,13 @@ const CertificateUploader: React.FC<CertificateUploaderProps> = ({
     onDropRejected: () => setIsDragActive(false),
   });
 
+  const handleRemoveClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onRemove) {
+      onRemove();
+    }
+  };
+
   return (
     <div
       {...getRootProps()}
@@ -47,6 +56,15 @@ const CertificateUploader: React.FC<CertificateUploaderProps> = ({
       }`}
     >
       <input {...getInputProps()} />
+      {currentFile && onRemove && (
+        <button
+          className="remove-file-btn"
+          onClick={handleRemoveClick}
+          title="Remove file"
+        >
+          ✕
+        </button>
+      )}
       <div className="file-info">
         {currentFile ? (
           <>
