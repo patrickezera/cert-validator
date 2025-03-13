@@ -1,21 +1,82 @@
 # Certificate Validator
 
-A web application that allows users to upload and validate SSL/TLS certificates. The application checks if a certificate is valid and displays detailed information about the certificate.
+A modern web application for validating SSL/TLS certificates and checking compatibility between certificates and private keys.
 
 ## Features
 
-- Upload certificate files (supports .crt, .pem, .cer, .der formats)
-- Validate certificate expiration dates
-- Display detailed certificate information:
-  - Subject and Issuer
-  - Serial Number
-  - Validity Period
-  - Fingerprint
-  - Public Key and Signature Algorithms
-  - Key Usage and Extended Key Usage
-  - Subject Alternative Names
-- Built with TypeScript for improved type safety and developer experience
-- Uses ES modules for the server and CommonJS for the client
+- Certificate validation
+- Certificate and private key compatibility checking
+- CA bundle verification
+- Modern UI with light/dark theme
+- Drag-and-drop file uploads
+
+## Deployment to Vercel
+
+This application has been configured to work with Vercel's serverless functions. To deploy:
+
+1. Install the Vercel CLI:
+
+   ```
+   npm install -g vercel
+   ```
+
+2. Login to Vercel:
+
+   ```
+   vercel login
+   ```
+
+3. Deploy the application:
+
+   ```
+   vercel
+   ```
+
+4. For production deployment:
+   ```
+   vercel --prod
+   ```
+
+## Local Development
+
+1. Install dependencies:
+
+   ```
+   npm install
+   ```
+
+2. Start the development server:
+
+   ```
+   npm run dev
+   ```
+
+3. Build for production:
+
+   ```
+   npm run build
+   ```
+
+4. Start the production server:
+   ```
+   npm start
+   ```
+
+## Project Structure
+
+- `/src` - React frontend code
+- `/api` - Serverless API functions for Vercel
+- `/dist` - Built frontend assets
+- `/dist-server` - Built server code
+
+## Technologies Used
+
+- React
+- TypeScript
+- Node.js
+- Express
+- node-forge (for certificate operations)
+- Vercel Serverless Functions
 
 ## Prerequisites
 
