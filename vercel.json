@@ -2,10 +2,21 @@
   "version": 2,
   "builds": [
     { "src": "vercel.js", "use": "@vercel/node" },
+    { "src": "api/**/*.ts", "use": "@vercel/node" },
     { "src": "dist/**/*", "use": "@vercel/static" }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" },
+    {
+      "src": "/api/validate",
+      "methods": ["POST", "OPTIONS"],
+      "dest": "/api/validate.ts"
+    },
+    {
+      "src": "/api/check-compatibility",
+      "methods": ["POST", "OPTIONS"],
+      "dest": "/api/check-compatibility.ts"
+    },
+    { "src": "/api/(.*)", "dest": "/api/$1.ts" },
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/vercel.js" }
   ]
