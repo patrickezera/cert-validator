@@ -6,8 +6,8 @@ yarn.lock
 package-lock.json
 
 # Build outputs
-/dist
-/dist-server
+# /dist  # Commented out to allow dist to be committed
+# /dist-server  # Commented out to allow dist-server to be committed
 /build
 /out
 /.next

@@ -1,0 +1,5 @@
+import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
+function CertificateValidator({ onValidate, onRemove, loading, fileName, }) {
+    return (_jsx("div", { className: "form-group", children: _jsxs("div", { className: "certificate-status-item", children: [_jsxs("div", { className: "file-status-container", children: [_jsx("span", { className: "file-icon", children: "\uD83D\uDCC4" }), _jsx("span", { className: "status-uploaded", children: fileName }), _jsx("button", { className: "btn-remove", onClick: onRemove, title: "Remove certificate", children: "\u2715" })] }), _jsx("button", { className: "btn", onClick: onValidate, disabled: loading, style: { marginLeft: "auto" }, children: loading ? (_jsxs(_Fragment, { children: [_jsxs("svg", { className: "loading-spinner", width: "16", height: "16", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", children: [_jsx("circle", { cx: "12", cy: "12", r: "10" }), _jsx("path", { d: "M12 6v6l4 2" })] }), "Validating..."] })) : ("Validate Certificate") })] }) }));
+}
+export default CertificateValidator;
