@@ -57,7 +57,8 @@ app.get("*", (req: Request, res: Response) => {
 });
 
 // Start the server only if this file is run directly
-if (require.main === module) {
+// Using ES modules approach instead of CommonJS require.main === module
+if (import.meta.url === `file://${process.argv[1]}`) {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
