@@ -33,10 +33,11 @@ app.post("/api/check-compatibility", upload.fields([
     return checkCompatibilityHandler(req, res);
 });
 // Serve static files from the dist directory
-app.use(express.static(path.join(__dirname, "dist")));
+// In Vercel, dist is at the root level, not inside dist-vercel
+app.use(express.static(path.join(path.dirname(__dirname), "dist")));
 // Fallback to index.html for client-side routing
 app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "dist", "index.html"));
+    res.sendFile(path.join(path.dirname(__dirname), "dist", "index.html"));
 });
 // Start the server only if this file is run directly
 // Using ES modules approach instead of CommonJS require.main === module
