@@ -7,9 +7,10 @@
   "scripts": {
     "start": "node dist-server/server.js",
     "dev": "nodemon --exec 'tsc -p tsconfig.server.json && node dist-server/server.js'",
-    "build": "webpack --mode production --config webpack.config.cjs && tsc -p tsconfig.server.json && tsc -p tsconfig.json",
+    "build": "webpack --mode production --config webpack.config.cjs && tsc -p tsconfig.server.json && tsc -p tsconfig.json && tsc -p tsconfig.vercel.json",
     "build:client": "webpack --mode production --config webpack.config.cjs",
     "build:server": "tsc -p tsconfig.server.json",
+    "build:vercel": "tsc -p tsconfig.vercel.json",
     "type-check": "tsc --noEmit",
     "vercel-build": "npm run build"
   },

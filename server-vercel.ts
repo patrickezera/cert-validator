@@ -6,8 +6,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 // Import API handlers
-import checkCompatibilityHandler from "./api/check-compatibility";
-import validateHandler from "./api/validate";
+import checkCompatibilityHandler from "./api/check-compatibility.js";
+import validateHandler from "./api/validate.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

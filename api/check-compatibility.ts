@@ -943,7 +943,10 @@ export default async function handler(
                         // Try with the full certificate ASN.1 structure
                         const certAsn1 = forge.pki.certificateToAsn1(cert);
                         const tbsAsn1 = certAsn1.value[0];
-                        const tbsData = forge.asn1.toDer(tbsAsn1).getBytes();
+                        // Add type assertion to ensure tbsAsn1 is treated as Asn1
+                        const tbsData = forge.asn1
+                          .toDer(tbsAsn1 as forge.asn1.Asn1)
+                          .getBytes();
 
                         // Try to verify with the TBS data
                         verified = (ca.publicKey as any).verify(
