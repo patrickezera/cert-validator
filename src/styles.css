@@ -688,6 +688,38 @@ body {
   border: 1px solid var(--border);
 }
 
+.advanced-options-toggle {
+  margin: 1.5rem 0 0.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-advanced {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.btn-advanced:hover {
+  background-color: rgba(67, 97, 238, 0.05);
+  border-color: var(--primary);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.btn-advanced:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
 .checkbox-container {
   display: flex;
   align-items: center;

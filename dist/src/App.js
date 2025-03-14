@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useEffect, useState } from "react";
+import CertificateCompatibilityChecker from "./components/CertificateCompatibilityChecker";
 import CertificateDetails from "./components/CertificateDetails";
 import CertificateUploader from "./components/CertificateUploader";
 import "./styles.css";
@@ -103,7 +104,7 @@ function App() {
             setLoading(false);
         }
     });
-    const handleCompatibilityCheck = () => __awaiter(this, void 0, void 0, function* () {
+    const handleCompatibilityCheck = (options) => __awaiter(this, void 0, void 0, function* () {
         if (!certificates.certificate || !certificates.privateKey)
             return;
         setCompatibilityLoading(true);
@@ -116,7 +117,23 @@ function App() {
             if (certificates.caBundle) {
                 formData.append("caBundle", certificates.caBundle.file);
             }
-            const response = yield fetch("/api/check-compatibility", {
+            // Build the URL with query parameters
+            let url = "/api/check-compatibility";
+            const params = new URLSearchParams();
+            if (options.allowNameMatchOverride) {
+                params.append("allowNameMatchOverride", "true");
+            }
+            if (options.debugMode) {
+                params.append("debug", "true");
+            }
+            if (options.forceGoDaddyOverride) {
+                params.append("forceGoDaddyOverride", "true");
+            }
+            // Add the query parameters to the URL if there are any
+            if (params.toString()) {
+                url += `?${params.toString()}`;
+            }
+            const response = yield fetch(url, {
                 method: "POST",
                 body: formData,
             });
@@ -143,24 +160,23 @@ function App() {
                             setError(null);
                         }, label: "Upload Certificate", currentFile: certificate, onRemove: handleRemoveSingleCertificate }), certificate && (_jsx("div", { className: "validation-button-container", style: { marginTop: "1.5rem", marginBottom: "1.5rem" }, children: _jsx("button", { className: "btn", onClick: handleValidation, disabled: !certificate || loading, children: loading ? "Validating..." : "Validate Certificate" }) })), error && _jsx("div", { className: "result result-invalid", children: error }), validationResult && (_jsxs("div", { className: `result ${validationResult.valid ? "result-valid" : "result-invalid"}`, children: [_jsx("h3", { children: validationResult.valid
                                     ? "Valid Certificate"
-                                    : "Invalid Certificate" }), _jsx("p", { children: validationResult.message })] })), certDetails && _jsx(CertificateDetails, { details: certDetails })] }), _jsxs("div", { className: "card", children: [_jsx("h2", { children: "Certificate Compatibility Check" }), _jsxs("div", { className: "upload-group", children: [_jsxs("div", { className: "form-group", children: [_jsx("label", { children: "Certificate" }), _jsx(CertificateUploader, { onFileUpload: (file) => {
-                                            setCertificates(Object.assign(Object.assign({}, certificates), { certificate: { file, type: "certificate" } }));
-                                            setCompatibilityResult(null);
-                                            setError(null);
-                                        }, label: "Certificate", currentFile: ((_a = certificates.certificate) === null || _a === void 0 ? void 0 : _a.file) || null, onRemove: () => handleRemoveCertificate("certificate") })] }), _jsxs("div", { className: "form-group", children: [_jsx("label", { children: "Private Key" }), _jsx(CertificateUploader, { onFileUpload: (file) => {
-                                            setCertificates(Object.assign(Object.assign({}, certificates), { privateKey: { file, type: "privateKey" } }));
-                                            setCompatibilityResult(null);
-                                            setError(null);
-                                        }, label: "Private Key", accept: ".key,.pem", currentFile: ((_b = certificates.privateKey) === null || _b === void 0 ? void 0 : _b.file) || null, onRemove: () => handleRemoveCertificate("privateKey") })] }), _jsxs("div", { className: "form-group", children: [_jsx("label", { children: "CA Bundle (Optional)" }), _jsx(CertificateUploader, { onFileUpload: (file) => {
-                                            setCertificates(Object.assign(Object.assign({}, certificates), { caBundle: { file, type: "caBundle" } }));
-                                            setCompatibilityResult(null);
-                                            setError(null);
-                                        }, label: "CA Bundle", currentFile: ((_c = certificates.caBundle) === null || _c === void 0 ? void 0 : _c.file) || null, onRemove: () => handleRemoveCertificate("caBundle") })] })] }), _jsxs("div", { className: "action-buttons", children: [_jsx("button", { className: "btn", onClick: handleCompatibilityCheck, disabled: !certificates.certificate ||
-                                    !certificates.privateKey ||
-                                    compatibilityLoading, children: compatibilityLoading ? "Checking..." : "Check Compatibility" }), _jsx("p", { className: "help-text", children: "Upload a certificate and its private key to check if they are compatible. CA Bundle is optional." })] }), compatibilityResult && (_jsxs("div", { className: `compatibility-result ${compatibilityResult.compatible
-                            ? "compatibility-success"
-                            : "compatibility-error"}`, children: [_jsx("h3", { children: compatibilityResult.compatible
-                                    ? "Certificate and Private Key are compatible"
-                                    : "Certificate and Private Key are not compatible" }), _jsx("p", { children: compatibilityResult.message }), compatibilityResult.details && (_jsx("ul", { className: "compatibility-details", children: compatibilityResult.details.map((detail, index) => (_jsx("li", { children: detail }, index))) }))] }))] })] }));
+                                    : "Invalid Certificate" }), _jsx("p", { children: validationResult.message })] })), certDetails && _jsx(CertificateDetails, { details: certDetails })] }), _jsxs("div", { className: "card", children: [_jsx("h2", { children: "Certificate Compatibility Check" }), _jsxs("div", { className: "compatibility-section", children: [_jsxs("div", { className: "compatibility-container", children: [_jsxs("div", { className: "upload-section", children: [_jsx(CertificateUploader, { onFileUpload: (file) => handleMultiCertificateUpload({
+                                                    file,
+                                                    type: "certificate",
+                                                }), label: "Upload Certificate", currentFile: ((_a = certificates.certificate) === null || _a === void 0 ? void 0 : _a.file) || null, onRemove: () => handleRemoveCertificate("certificate") }), _jsx(CertificateUploader, { onFileUpload: (file) => handleMultiCertificateUpload({
+                                                    file,
+                                                    type: "privateKey",
+                                                }), label: "Upload Private Key", currentFile: ((_b = certificates.privateKey) === null || _b === void 0 ? void 0 : _b.file) || null, onRemove: () => handleRemoveCertificate("privateKey") }), _jsx(CertificateUploader, { onFileUpload: (file) => handleMultiCertificateUpload({
+                                                    file,
+                                                    type: "caBundle",
+                                                }), label: "Upload CA Bundle (Optional)", currentFile: ((_c = certificates.caBundle) === null || _c === void 0 ? void 0 : _c.file) || null, onRemove: () => handleRemoveCertificate("caBundle") })] }), _jsx(CertificateCompatibilityChecker, { certificates: {
+                                            certificate: certificates.certificate || null,
+                                            privateKey: certificates.privateKey || null,
+                                            caBundle: certificates.caBundle || null,
+                                        }, onCheckCompatibility: handleCompatibilityCheck, onRemoveCertificate: handleRemoveCertificate, loading: compatibilityLoading })] }), compatibilityError && (_jsx("div", { className: "result result-invalid", children: compatibilityError })), compatibilityResult && (_jsxs("div", { className: `compatibility-result ${compatibilityResult.compatible
+                                    ? "compatibility-success"
+                                    : "compatibility-error"}`, children: [_jsx("h3", { children: compatibilityResult.compatible
+                                            ? "Certificate and Private Key are compatible"
+                                            : "Certificate and Private Key are not compatible" }), _jsx("p", { children: compatibilityResult.message }), compatibilityResult.details && (_jsx("ul", { className: "compatibility-details", children: compatibilityResult.details.map((detail, index) => (_jsx("li", { children: detail }, index))) }))] }))] })] })] }));
 }
 export default App;

@@ -157,7 +157,11 @@ function App() {
     }
   };
 
-  const handleCompatibilityCheck = async (allowNameMatchOverride = false) => {
+  const handleCompatibilityCheck = async (options: {
+    allowNameMatchOverride: boolean;
+    debugMode: boolean;
+    forceGoDaddyOverride: boolean;
+  }) => {
     if (!certificates.certificate || !certificates.privateKey) return;
 
     setCompatibilityLoading(true);
@@ -173,12 +177,28 @@ function App() {
         formData.append("caBundle", certificates.caBundle.file);
       }
 
-      // Add the allowNameMatchOverride parameter if true
-      if (allowNameMatchOverride) {
-        formData.append("allowNameMatchOverride", "true");
+      // Build the URL with query parameters
+      let url = "/api/check-compatibility";
+      const params = new URLSearchParams();
+
+      if (options.allowNameMatchOverride) {
+        params.append("allowNameMatchOverride", "true");
       }
 
-      const response = await fetch("/api/check-compatibility", {
+      if (options.debugMode) {
+        params.append("debug", "true");
+      }
+
+      if (options.forceGoDaddyOverride) {
+        params.append("forceGoDaddyOverride", "true");
+      }
+
+      // Add the query parameters to the URL if there are any
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+
+      const response = await fetch(url, {
         method: "POST",
         body: formData,
       });
